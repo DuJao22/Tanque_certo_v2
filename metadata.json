@@ -1,0 +1,5 @@
+{
+  "name": "MELHORIA V3.0 Tanque Certo - Volumetria",
+  "description": "Sistema de cálculo volumétrico para tanques de combustível com base em tabelas de altura (cm) para litros.",
+  "requestFramePermissions": []
+}
