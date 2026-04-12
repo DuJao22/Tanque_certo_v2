@@ -114,8 +114,9 @@ export const HistoryTable: React.FC = React.memo(() => {
 
   return (
     <div className="bg-white rounded-3xl border border-zinc-200 overflow-hidden shadow-sm">
-      <Table>
-        <TableHeader className="bg-zinc-50">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader className="bg-zinc-50">
           <TableRow>
             <TableHead className="font-bold">Data/Hora</TableHead>
             <TableHead className="font-bold">Tanque</TableHead>
@@ -230,5 +231,6 @@ export const HistoryTable: React.FC = React.memo(() => {
         </TableBody>
       </Table>
     </div>
-  );
+  </div>
+);
 });

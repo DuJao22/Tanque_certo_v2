@@ -93,6 +93,14 @@ const AppContent: React.FC = () => {
                 </Button>
               </header>
 
+              {/* Sidebar Overlay */}
+              {isSidebarOpen && (
+                <div 
+                  className="fixed inset-0 bg-black/50 z-30 md:hidden" 
+                  onClick={() => setIsSidebarOpen(false)}
+                />
+              )}
+
               {/* Sidebar */}
               <aside className={`
                 fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-zinc-200 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
@@ -163,15 +171,15 @@ const AppContent: React.FC = () => {
               </aside>
 
               {/* Main Content */}
-              <main className="flex-1 p-4 md:p-8 overflow-y-auto">
-                <div className="max-w-7xl mx-auto space-y-8">
+              <main className="flex-1 p-4 md:p-8 overflow-y-auto w-full">
+                <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                      <h1 className="text-3xl font-black tracking-tighter uppercase">
+                    <div className="space-y-1">
+                      <h1 className="text-2xl md:text-3xl font-black tracking-tighter uppercase">
                         {activeTab === 'dashboard' ? 'Painel de Controle' : 
                          activeTab === 'history' ? 'Histórico de Medições' : 'Gestão de Acesso'}
                       </h1>
-                      <p className="text-zinc-500 font-medium">
+                      <p className="text-sm md:text-base text-zinc-500 font-medium">
                         {activeTab === 'dashboard' ? 'Monitoramento em tempo real dos tanques de combustível.' : 
                          activeTab === 'history' ? 'Visualize e exporte o histórico completo de volumetria.' : 'Gerencie permissões e papéis dos usuários.'}
                       </p>

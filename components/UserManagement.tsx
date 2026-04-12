@@ -193,7 +193,7 @@ export const UserManagement: React.FC = React.memo(() => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreateUser} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Nome Completo</Label>
                   <Input value={newName} onChange={e => setNewName(e.target.value)} required />
@@ -203,7 +203,7 @@ export const UserManagement: React.FC = React.memo(() => {
                   <Input value={newUsername} onChange={e => setNewUsername(e.target.value)} required />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Senha</Label>
                   <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required />
@@ -296,32 +296,34 @@ export const UserManagement: React.FC = React.memo(() => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Usuário</TableHead>
-                <TableHead>Papel</TableHead>
-                <TableHead>Posto</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map(u => (
-                <TableRow key={u.id}>
-                  <TableCell className="font-bold">{u.name}</TableCell>
-                  <TableCell>{u.username}</TableCell>
-                  <TableCell>
-                    <Badge variant={u.role === 'SUPERADMIN' ? 'destructive' : u.role === 'GERENTE' ? 'default' : 'secondary'}>
-                      {u.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {u.posto_id ? postos.find(p => p.id === u.posto_id)?.name || `Posto #${u.posto_id}` : '-'}
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Usuário</TableHead>
+                  <TableHead>Papel</TableHead>
+                  <TableHead>Posto</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {users.map(u => (
+                  <TableRow key={u.id}>
+                    <TableCell className="font-bold">{u.name}</TableCell>
+                    <TableCell>{u.username}</TableCell>
+                    <TableCell>
+                      <Badge variant={u.role === 'SUPERADMIN' ? 'destructive' : u.role === 'GERENTE' ? 'default' : 'secondary'}>
+                        {u.role}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {u.posto_id ? postos.find(p => p.id === u.posto_id)?.name || `Posto #${u.posto_id}` : '-'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
