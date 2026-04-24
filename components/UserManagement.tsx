@@ -44,30 +44,43 @@ export const UserManagement: React.FC = React.memo(() => {
 
   const fetchData = async () => {
     const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    setLoading(true);
     try {
       const usersRes = await fetch('/api/users', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!usersRes.ok) throw new Error('Failed to fetch users');
-      setUsers(await usersRes.json());
+      
+      if (!usersRes.ok) {
+        const errorData = await usersRes.json();
+        throw new Error(errorData.error || 'Falha ao buscar usuários');
+      }
+      
+      const usersData = await usersRes.json();
+      setUsers(usersData);
 
       if (user?.role === 'SUPERADMIN') {
         const postosRes = await fetch('/api/postos', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!postosRes.ok) throw new Error('Failed to fetch postos');
-        setPostos(await postosRes.json());
+        if (postosRes.ok) {
+          setPostos(await postosRes.json());
+        }
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      toast.error(e.message || "Erro de conexão ao buscar dados");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (user) {
+      fetchData();
+    }
+  }, [user?.id]);
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,7 +201,7 @@ export const UserManagement: React.FC = React.memo(() => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <UserPlus className="w-5 h-5" />
-              Criar Novo {user?.role === 'SUPERADMIN' ? 'Gerente' : 'Operador'}
+              Criar Novo {user?.role === 'SUPERADMIN' ? 'Gerente' : 'Colaborador'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -221,7 +234,11 @@ export const UserManagement: React.FC = React.memo(() => {
                       {user?.role === 'SUPERADMIN' ? (
                         <SelectItem value="GERENTE">Gerente de Posto</SelectItem>
                       ) : (
-                        <SelectItem value="OPERADOR">Operador de Pista</SelectItem>
+                        <>
+                          <SelectItem value="CAIXA">Caixa</SelectItem>
+                          <SelectItem value="FRENTISTA">Frentista</SelectItem>
+                          <SelectItem value="OPERADOR">Operador de Pista</SelectItem>
+                        </>
                       )}
                     </SelectContent>
                   </Select>
@@ -312,8 +329,18 @@ export const UserManagement: React.FC = React.memo(() => {
                     <TableCell className="font-bold">{u.name}</TableCell>
                     <TableCell>{u.username}</TableCell>
                     <TableCell>
-                      <Badge variant={u.role === 'SUPERADMIN' ? 'destructive' : u.role === 'GERENTE' ? 'default' : 'secondary'}>
-                        {u.role}
+                      <Badge variant={
+                        u.role === 'SUPERADMIN' ? 'destructive' : 
+                        u.role === 'GERENTE' ? 'default' : 
+                        u.role === 'CAIXA' ? 'outline' :
+                        u.role === 'FRENTISTA' ? 'secondary' : 'secondary'
+                      }>
+                        {
+                          u.role === 'SUPERADMIN' ? 'Superadmin' :
+                          u.role === 'GERENTE' ? 'Gerente' :
+                          u.role === 'CAIXA' ? 'Caixa' :
+                          u.role === 'FRENTISTA' ? 'Frentista' : u.role
+                        }
                       </Badge>
                     </TableCell>
                     <TableCell>

@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { TankDef } from '../types';
 import { getVolume } from '../lib/volumetry';
 import { toast } from 'sonner';
-import { Ruler, Calculator, Loader2 } from 'lucide-react';
+import { useAuth } from './AuthProvider';
+import { Ruler, Calculator, Loader2, AlertCircle } from 'lucide-react';
 
 interface MeasurementModalProps {
   tank: TankDef | null;
@@ -16,12 +17,19 @@ interface MeasurementModalProps {
 }
 
 export const MeasurementModal: React.FC<MeasurementModalProps> = ({ tank, isOpen, onClose, userName }) => {
+  const { user } = useAuth();
   const [height, setHeight] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const canLaunchVolume = user?.role === 'SUPERADMIN' || user?.role === 'GERENTE' || user?.role === 'CAIXA';
 
   if (!tank) return null;
 
   const handleSave = async () => {
+    if (!canLaunchVolume) {
+      toast.error("Somente o Caixa pode lançar volumes no tanque.");
+      return;
+    }
     const h = parseInt(height);
     if (isNaN(h) || h < 0 || h > 260) {
       toast.error("Altura inválida (0-260cm)");
@@ -78,6 +86,12 @@ export const MeasurementModal: React.FC<MeasurementModalProps> = ({ tank, isOpen
         </DialogHeader>
         
         <div className="space-y-4 py-4">
+          {!canLaunchVolume && (
+            <div className="flex gap-2 p-3 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-medium">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              Sua conta não tem permissão para lançar volumes. Apenas o Caixa pode realizar esta operação.
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="height">Altura da Régua (cm)</Label>
             <div className="relative">
@@ -107,7 +121,7 @@ export const MeasurementModal: React.FC<MeasurementModalProps> = ({ tank, isOpen
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={loading}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={loading} className="gap-2">
+          <Button onClick={handleSave} disabled={loading || !canLaunchVolume} className="gap-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Salvar Medição'}
           </Button>
         </DialogFooter>

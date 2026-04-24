@@ -4,12 +4,16 @@ import { Login } from './components/Login';
 import { Dashboard } from './components/Dashboard';
 import { HistoryTable } from './components/HistoryTable';
 import { UserManagement } from './components/UserManagement';
+import { ProductInventory } from './components/ProductInventory';
+import { PointOfSale } from './components/PointOfSale';
+import { SalesDashboard } from './components/SalesDashboard';
+import { SystemLogs } from './components/SystemLogs';
 import { MeasurementModal } from './components/MeasurementModal';
 import { Intro } from './components/Intro';
 import { TANKS } from './constants';
 import { TankDef } from './types';
 import { Toaster } from '@/components/ui/sonner';
-import { LayoutDashboard, History, Users, LogOut, Menu, X, UserCircle, MapPin } from 'lucide-react';
+import { LayoutDashboard, History, Users, LogOut, Menu, X, UserCircle, MapPin, Package, ShoppingCart, TrendingUp, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +34,13 @@ export const ShellLogo = React.memo(() => (
 
 const AppContent: React.FC = () => {
   const { user, loading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'history' | 'users'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'history' | 'users' | 'inventory' | 'pos' | 'sales_stats' | 'logs'>('dashboard');
+
+  useEffect(() => {
+    if (user?.role === 'FRENTISTA') {
+      setActiveTab('pos');
+    }
+  }, [user]);
   const [selectedTank, setSelectedTank] = useState<TankDef | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -59,12 +69,16 @@ const AppContent: React.FC = () => {
   const roleLabels = {
     'SUPERADMIN': 'Super Administrador',
     'GERENTE': 'Gerente de Posto',
+    'CAIXA': 'Caixa / Financeiro',
+    'FRENTISTA': 'Frentista de Pista',
     'OPERADOR': 'Operador de Pista'
   };
 
   const roleColors = {
     'SUPERADMIN': 'bg-red-100 text-red-700 border-red-200',
     'GERENTE': 'bg-purple-100 text-purple-700 border-purple-200',
+    'CAIXA': 'bg-green-100 text-green-700 border-green-200',
+    'FRENTISTA': 'bg-orange-100 text-orange-700 border-orange-200',
     'OPERADOR': 'bg-blue-100 text-blue-700 border-blue-200'
   };
 
@@ -116,16 +130,38 @@ const AppContent: React.FC = () => {
                   </div>
 
                   <div className="space-y-1 flex-1">
+                    {user?.role !== 'FRENTISTA' && (
+                      <Button 
+                        variant={activeTab === 'dashboard' ? 'default' : 'ghost'} 
+                        className="w-full justify-start gap-3 h-12 font-bold"
+                        onClick={() => { setActiveTab('dashboard'); setIsSidebarOpen(false); }}
+                      >
+                        <LayoutDashboard className="w-5 h-5" />
+                        Dashboard
+                      </Button>
+                    )}
+
                     <Button 
-                      variant={activeTab === 'dashboard' ? 'default' : 'ghost'} 
+                      variant={activeTab === 'pos' ? 'default' : 'ghost'} 
                       className="w-full justify-start gap-3 h-12 font-bold"
-                      onClick={() => { setActiveTab('dashboard'); setIsSidebarOpen(false); }}
+                      onClick={() => { setActiveTab('pos'); setIsSidebarOpen(false); }}
                     >
-                      <LayoutDashboard className="w-5 h-5" />
-                      Dashboard
+                      <ShoppingCart className="w-5 h-5" />
+                      PDV Pista
                     </Button>
+
+                    {(user?.role === 'SUPERADMIN' || user?.role === 'GERENTE' || user?.role === 'CAIXA') && (
+                      <Button 
+                        variant={activeTab === 'sales_stats' ? 'default' : 'ghost'} 
+                        className="w-full justify-start gap-3 h-12 font-bold"
+                        onClick={() => { setActiveTab('sales_stats'); setIsSidebarOpen(false); }}
+                      >
+                        <TrendingUp className="w-5 h-5" />
+                        Relatórios Vendas
+                      </Button>
+                    )}
                     
-                    {(user?.role === 'SUPERADMIN' || user?.role === 'GERENTE') && (
+                    {(user?.role === 'SUPERADMIN' || user?.role === 'GERENTE' || user?.role === 'CAIXA' || user?.role === 'FRENTISTA' || user?.role === 'OPERADOR') && (
                       <Button 
                         variant={activeTab === 'history' ? 'default' : 'ghost'} 
                         className="w-full justify-start gap-3 h-12 font-bold"
@@ -138,12 +174,34 @@ const AppContent: React.FC = () => {
 
                     {(user?.role === 'SUPERADMIN' || user?.role === 'GERENTE') && (
                       <Button 
+                        variant={activeTab === 'inventory' ? 'default' : 'ghost'} 
+                        className="w-full justify-start gap-3 h-12 font-bold"
+                        onClick={() => { setActiveTab('inventory'); setIsSidebarOpen(false); }}
+                      >
+                        <Package className="w-5 h-5" />
+                        Estoque
+                      </Button>
+                    )}
+
+                    {(user?.role === 'SUPERADMIN' || user?.role === 'GERENTE') && (
+                      <Button 
                         variant={activeTab === 'users' ? 'default' : 'ghost'} 
                         className="w-full justify-start gap-3 h-12 font-bold"
                         onClick={() => { setActiveTab('users'); setIsSidebarOpen(false); }}
                       >
                         <Users className="w-5 h-5" />
-                        Gestão
+                        Usuários
+                      </Button>
+                    )}
+
+                    {(user?.role === 'SUPERADMIN' || user?.role === 'GERENTE') && (
+                      <Button 
+                        variant={activeTab === 'logs' ? 'default' : 'ghost'} 
+                        className="w-full justify-start gap-3 h-12 font-bold"
+                        onClick={() => { setActiveTab('logs'); setIsSidebarOpen(false); }}
+                      >
+                        <ShieldCheck className="w-5 h-5" />
+                        Audit Log
                       </Button>
                     )}
                   </div>
@@ -177,11 +235,19 @@ const AppContent: React.FC = () => {
                     <div className="space-y-1">
                       <h1 className="text-2xl md:text-3xl font-black tracking-tighter uppercase">
                         {activeTab === 'dashboard' ? 'Painel de Controle' : 
-                         activeTab === 'history' ? 'Histórico de Medições' : 'Gestão de Acesso'}
+                         activeTab === 'history' ? 'Histórico de Medições' : 
+                         activeTab === 'users' ? 'Gestão de Acesso' : 
+                         activeTab === 'inventory' ? 'Gestão de Estoque' :
+                         activeTab === 'sales_stats' ? 'Dashboard de Vendas' :
+                         activeTab === 'logs' ? 'Auditoria de Sistema' : 'Ponto de Venda'}
                       </h1>
                       <p className="text-sm md:text-base text-zinc-500 font-medium">
                         {activeTab === 'dashboard' ? 'Monitoramento em tempo real dos tanques de combustível.' : 
-                         activeTab === 'history' ? 'Visualize e exporte o histórico completo de volumetria.' : 'Gerencie permissões e papéis dos usuários.'}
+                         activeTab === 'history' ? 'Visualize e exporte o histórico completo de volumetria.' : 
+                         activeTab === 'users' ? 'Gerencie permissões e papéis dos usuários.' :
+                         activeTab === 'inventory' ? 'Controle de entrada e transferência de produtos.' :
+                         activeTab === 'sales_stats' ? 'Análise Detalhada de Vendas por Posto.' :
+                         activeTab === 'logs' ? 'Rastreamento completo de todas as ações no sistema.' : 'Consultar preços e realizar vendas na pista.'}
                       </p>
                     </div>
                     
@@ -196,6 +262,10 @@ const AppContent: React.FC = () => {
                   {activeTab === 'dashboard' && <Dashboard onSelectTank={handleSelectTank} />}
                   {activeTab === 'history' && <HistoryTable />}
                   {activeTab === 'users' && <UserManagement />}
+                  {activeTab === 'inventory' && <ProductInventory />}
+                  {activeTab === 'pos' && <PointOfSale />}
+                  {activeTab === 'sales_stats' && <SalesDashboard />}
+                  {activeTab === 'logs' && <SystemLogs />}
                 </div>
               </main>
 

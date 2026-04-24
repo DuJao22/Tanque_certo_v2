@@ -1,6 +1,6 @@
 export type FuelType = 'DIESEL' | 'GASOLINA' | 'GASOLINA_ADITIVADA' | 'ETANOL_COMUM' | 'ETANOL_ADITIVADO';
 
-export type UserRole = 'SUPERADMIN' | 'GERENTE' | 'OPERADOR';
+export type UserRole = 'SUPERADMIN' | 'GERENTE' | 'CAIXA' | 'FRENTISTA' | 'OPERADOR';
 
 export interface UserProfile {
   id: number;
@@ -56,4 +56,51 @@ export interface TankDef {
   labelColor: string;
   capacity: number;
   minStock?: number;
+}
+
+export interface Product {
+  id: number;
+  barcode: string;
+  name: string;
+  price: number;
+  category?: string;
+  internal_qty?: number;
+  external_qty?: number;
+}
+
+export interface ProductSale {
+  id: number;
+  product_id: number;
+  posto_id: number;
+  user_id: number;
+  qty: number;
+  price_at_sale: number;
+  timestamp: number;
+  product_name?: string;
+  user_name?: string;
+  posto_name?: string;
+}
+
+export interface SystemLog {
+  id: number;
+  user_id: number;
+  action: string;
+  details: string;
+  posto_id: number | null;
+  timestamp: number;
+  user_name: string;
+  posto_name?: string;
+}
+
+export interface DashboardStats {
+  totalRevenue: number;
+  salesByProduct: {
+    name: string;
+    total_qty: number;
+    total_revenue: number;
+  }[];
+  dailySales: {
+    sale_date: string;
+    total: number;
+  }[];
 }
